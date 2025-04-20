@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Business Horror Quiz</title>
+    <style>
+        @font-face {
+            font-family: 'PixelFont';
+            src: url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        }
+        
+        body {
+            font-family: 'PixelFont', cursive;
+            background-color: #111;
+            color: #0f0;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+            background-image: url('images/grid.png');
+            overflow-x: hidden;
+        }
+        
+        #game-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 2px solid #0f0;
+            border-radius: 10px;
+            box-shadow: 0 0 20px #0f0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        h1 {
+            color: #f00;
+            text-shadow: 0 0 10px #f00;
+            font-size: 2.5rem;
+            margin-bottom: 30px;
+            animation: glitch 1s infinite alternate;
+        }
+        
+        #question-container {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .question {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            text-shadow: 0 0 5px #0f0;
+            animation: fadeIn 1s;
+        }
+        
+        .options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .option {
+            background-color: #222;
+            border: 2px solid #0f0;
+            border-radius: 5px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.2rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .option:hover {
+            background-color: #333;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px #0f0;
+        }
+        
+        .option.selected {
+            background-color: #0a0;
+            border-color: #0f0;
+            box-shadow: 0 0 15px #0f0;
+        }
+        
+        .option.correct {
+            background-color: #0a0;
+            border-color: #0f0;
+            animation: pulse 0.5s;
+        }
+        
+        .option.wrong {
+            background-color: #a00;
+            border-color: #f00;
+            animation: shake 0.5s;
+        }
+        
+        #submit-btn {
+            background-color: #f00;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.5rem;
+            margin-top: 30px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-family: 'PixelFont', cursive;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        #submit-btn:hover {
+            background-color: #d00;
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #f00;
+        }
+        
+        #submit-btn:disabled {
+            background-color: #555;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        #score-container {
+            margin-top: 30px;
+            font-size: 1.5rem;
+            display: none;
+        }
+        
+        #progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #222;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background-color: #0f0;
+            transition: width 0.3s;
+        }
+        
+        #cartoon-character {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            width: 100px;
+            height: 100px;
+            background-image: url('images/cartoon.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            transition: all 0.5s;
+            z-index: 10;
+        }
+        
+        #cartoon-character:hover {
+            transform: scale(1.2) rotate(10deg);
+        }
+        
+        #jumpscare {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: black;
+            z-index: 100;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        
+        #jumpscare img {
+            max-width: 100%;
+            max-height: 100%;
+            animation: zoomIn 0.5s;
+        }
+        
+        #corrupted-text {
+            color: red;
+            font-size: 2rem;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+            animation: glitch 0.1s infinite;
+        }
+        
+        @keyframes glitch {
+            0% { text-shadow: 2px 0 0 red, -2px 0 0 cyan; }
+            25% { text-shadow: -2px 0 0 red, 2px 0 0 cyan; }
+            50% { text-shadow: 2px 0 0 red, -2px 0 0 cyan; }
+            75% { text-shadow: -2px 0 0 red, 2px 0 0 cyan; }
+            100% { text-shadow: 2px 0 0 red, -2px 0 0 cyan; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+        
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            50% { transform: translateX(5px); }
+            75% { transform: translateX(-5px); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes zoomIn {
+            from { transform: scale(0.5); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        
+        .corruption {
+            animation: corrupt 0.5s forwards;
+        }
+        
+        @keyframes corrupt {
+            to {
+                color: red;
+                text-shadow: 0 0 10px red;
+                transform: skew(10deg);
+                opacity: 0.8;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+        <h1>Commerce Horror Quiz</h1>
+        
+        <div id="question-container">
+            <div class="question" id="question-text"></div>
+            <div class="options" id="options-container"></div>
+        </div>
+        
+        <button id="submit-btn" disabled>Submit Answer</button>
+        
+        <div id="score-container">
+            <p>Your Score: <span id="score">0</span> / <span id="total-questions">0</span></p>
+        </div>
+        
+        <div id="cartoon-character"></div>
+    </div>
+    
+    <div id="jumpscare">
+        <img id="scare-image" src="" alt="Horror Image">
+        <audio id="scare-sound" src=""></audio>
+    </div>
+    
+    <div id="corrupted-text"></div>
+    
+    <script src="game.js"></script>
+</body>
+</html>
